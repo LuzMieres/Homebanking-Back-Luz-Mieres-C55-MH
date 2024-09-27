@@ -1,7 +1,6 @@
 package com.mainhub.homebanking.models;
 
 import jakarta.persistence.*;
-import org.springframework.stereotype.Repository;
 
 @Entity
 public class ClientLoan {
@@ -21,10 +20,10 @@ public class ClientLoan {
     @JoinColumn(name = "loan_id")
     private Loan loan;
 
-    public ClientLoan() {
+    public ClientLoan(double v, int payments) {
     }
 
-    public ClientLoan(double amount, Integer payments) {
+    public ClientLoan(double amount, Integer payments, Client melba, Loan hipotcario) {
         this.amount = amount;
         this.payments = payments;
     }

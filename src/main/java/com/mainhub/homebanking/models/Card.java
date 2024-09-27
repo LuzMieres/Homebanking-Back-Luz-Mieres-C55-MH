@@ -24,10 +24,10 @@ public class Card {
     @Enumerated(EnumType.STRING) //Enumerated indica que el tipo de dato es una cadena
     private CardColor color;
 
-    public Card() {
+    public Card(LocalDateTime expirationDate, CardType cardType, CardColor cardColor) {
     }
 
-    public Card(LocalDateTime thruDate, CardType type, CardColor color) {
+    public Card(LocalDateTime thruDate, CardType type, CardColor color, Client luz) {
 
         this.thruDate = thruDate;
         this.type = type;

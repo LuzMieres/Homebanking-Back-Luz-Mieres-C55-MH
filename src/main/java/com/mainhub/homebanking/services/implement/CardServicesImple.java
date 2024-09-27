@@ -1,7 +1,6 @@
 package com.mainhub.homebanking.services.implement;
 
 import com.mainhub.homebanking.DTO.CardDTO;
-import com.mainhub.homebanking.DTO.ClientDTO;
 import com.mainhub.homebanking.DTO.NewCardDTO;
 import com.mainhub.homebanking.models.Card;
 import com.mainhub.homebanking.models.Client;
@@ -43,33 +42,37 @@ public class CardServicesImple implements CardServices {
 
     @Override
     public ResponseEntity<?> createCard(Authentication authentication, NewCardDTO newCardDTO) {
+        Client client = getClient(authentication);  // Guardar el cliente en una variable
 
-        if (validateNewCardDto(newCardDTO) != null) {
-            return new ResponseEntity<>(validateNewCardDto(newCardDTO), HttpStatus.BAD_REQUEST);
+        String validationError = validateNewCardDto(newCardDTO);
+        if (validationError != null) {
+            return new ResponseEntity<>(validationError, HttpStatus.BAD_REQUEST);
         }
 
-        if (validateDetailsCard(getClient(authentication), newCardDTO) != null) {
-            return new ResponseEntity<>(validateDetailsCard(getClient(authentication), newCardDTO), HttpStatus.FORBIDDEN);
+        validationError = validateDetailsCard(client, newCardDTO);
+        if (validationError != null) {
+            return new ResponseEntity<>(validationError, HttpStatus.FORBIDDEN);
         }
 
-        if (validateColor(getClient(authentication), getCardColor(newCardDTO.color()),getCardType(newCardDTO.type())) != null) {
-            return new ResponseEntity<>(validateColor(getClient(authentication), getCardColor(newCardDTO.color()),getCardType(newCardDTO.type())), HttpStatus.FORBIDDEN);
+        validationError = validateColor(client, getCardColor(newCardDTO.color()), getCardType(newCardDTO.type()));
+        if (validationError != null) {
+            return new ResponseEntity<>(validationError, HttpStatus.FORBIDDEN);
         }
 
-        return ResponseEntity.ok().body(saveCard(getClient(authentication), generateCard(newCardDTO)));
+        // Llamar al método `generateCard` con solo el DTO, sin el cliente
+        Card newCard = generateCard(newCardDTO);
+        newCard.setClient(client);  // Asignar el cliente a la tarjeta generada
+        return ResponseEntity.ok().body(saveCard(client, newCard));
     }
 
     @Override
     public String validateNewCardDto(NewCardDTO card) {
-
         if (card.type().isBlank()) {
             return "The 'type' field is required.";
         }
-
         if (card.color().isBlank()) {
             return "The 'color' field is required.";
         }
-
         return null;
     }
 
@@ -80,7 +83,6 @@ public class CardServicesImple implements CardServices {
 
     @Override
     public String validateDetailsCard(Client client, NewCardDTO newCardDTO) {
-
         if (newCardDTO.type().equalsIgnoreCase("DEBIT")) {
             if (getAllCardsDebits(client).size() >= 3) {
                 return "You can't have more than 3 debit cards";
@@ -95,7 +97,6 @@ public class CardServicesImple implements CardServices {
 
     @Override
     public String validateColor(Client client, CardColor color, CardType type) {
-
         if (type == CardType.DEBIT) {
             if (getAllCardsDebits(client).stream().anyMatch(card -> card.getColor() == color)) {
                 return "You already have a debit card with this color";
@@ -105,7 +106,6 @@ public class CardServicesImple implements CardServices {
                 return "You already have a credit card with this color";
             }
         }
-
         return null;
     }
 
@@ -113,17 +113,20 @@ public class CardServicesImple implements CardServices {
     public List<Card> getAllCardsCredits(Client client) {
         return client.getCards().stream()
                 .filter(card -> card.getType() == CardType.CREDIT)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Card> getAllCardsDebits(Client client) {
         return client.getCards().stream()
                 .filter(card -> card.getType() == CardType.DEBIT)
-                .toList();
+                .collect(Collectors.toList());
     }
+
+    // Método `generateCard` con la firma correcta de la interfaz
     @Override
     public Card generateCard(NewCardDTO newCardDTO) {
+        // Generar la tarjeta sin cliente
         return new Card(getExpirationDate(5), getCardType(newCardDTO.type()), getCardColor(newCardDTO.color()));
     }
 
