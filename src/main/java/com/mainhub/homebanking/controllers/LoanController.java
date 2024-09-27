@@ -3,6 +3,7 @@ package com.mainhub.homebanking.controllers;
 import com.mainhub.homebanking.DTO.LoanAplicationDTO;
 import com.mainhub.homebanking.services.LoanServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,10 @@ public class LoanController {
 
     @PostMapping("/apply")
     public ResponseEntity<?> applyForLoan(Authentication authentication, @RequestBody LoanAplicationDTO loanDTO) {
+        if (loanDTO.destinationAccount() == null || loanDTO.destinationAccount().isBlank()) {
+            return new ResponseEntity<>("Destination account cannot be null or blank", HttpStatus.BAD_REQUEST);
+        }
         return loanServices.applyForLoan(authentication, loanDTO);
     }
+
 }

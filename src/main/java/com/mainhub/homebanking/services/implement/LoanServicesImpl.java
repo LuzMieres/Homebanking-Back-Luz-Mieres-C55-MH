@@ -95,8 +95,8 @@ public class LoanServicesImpl implements LoanServices {
         if (loanAplicationDTO.payments() <= 0){
             return "Payments invalid";
         }
-        if (loanAplicationDTO.destinationAccount().isBlank()){
-            return "Account is blank";
+        if (loanAplicationDTO.destinationAccount() == null || loanAplicationDTO.destinationAccount().isBlank()){
+            return "Account is null or blank";
         }
         if (loanAplicationDTO.id() <= 0){
             return "Id invalid";

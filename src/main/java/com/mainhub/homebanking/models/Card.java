@@ -27,6 +27,9 @@ public class Card {
     public Card(LocalDateTime expirationDate, CardType cardType, CardColor cardColor) {
     }
 
+    public Card() {
+    }
+
     public Card(LocalDateTime thruDate, CardType type, CardColor color, Client luz) {
 
         this.thruDate = thruDate;

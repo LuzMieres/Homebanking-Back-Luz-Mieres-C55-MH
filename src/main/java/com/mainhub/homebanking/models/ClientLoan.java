@@ -20,6 +20,9 @@ public class ClientLoan {
     @JoinColumn(name = "loan_id")
     private Loan loan;
 
+    public ClientLoan() {
+    }
+
     public ClientLoan(double v, int payments) {
     }
 
