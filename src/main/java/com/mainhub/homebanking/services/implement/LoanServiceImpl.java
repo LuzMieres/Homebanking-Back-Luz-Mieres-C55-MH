@@ -36,8 +36,6 @@ public class LoanServiceImpl implements LoanService {
         return loanRepository.findAll();  // Obtiene todos los préstamos de la base de datos
     }
 
-
-
     @Override
     public List<LoanDTO> getAllLoanDTO() {
         List<Loan> loans = loanRepository.findAll();  // Obtiene todos los préstamos
@@ -67,12 +65,11 @@ public class LoanServiceImpl implements LoanService {
         Account destinationAccount = verifyDestinationAccount(destinationAccountNumber, client);
 
         // Calcular el monto total del préstamo con la tasa de interés
-        double totalAmount = calculateTotalAmount(amount, payments);
+        double totalAmountWithInterest = calculateTotalAmountWithInterest(amount, payments);
 
         // Aplicar el préstamo al cliente
-        applyLoanToClient(loan, amount, payments, destinationAccount, totalAmount, client);
+        applyLoanToClient(loan, amount, payments, destinationAccount, totalAmountWithInterest, client);
     }
-
 
     // Método para buscar un préstamo por nombre
     private Loan findLoanByName(String loanName) {
@@ -107,7 +104,6 @@ public class LoanServiceImpl implements LoanService {
     }
 
     // Verificar la cuenta de destino y su propiedad
-    // Verificar la cuenta de destino y su propiedad
     private Account verifyDestinationAccount(String destinationAccountNumber, Client client) {
         List<Account> optionalAccount = accountRepository.findByNumber(destinationAccountNumber);
 
@@ -126,33 +122,32 @@ public class LoanServiceImpl implements LoanService {
         return destinationAccount;
     }
 
-
     // Calcular el monto total con la tasa de interés
-    private double calculateTotalAmount(double amount, int payments) {
+    private double calculateTotalAmountWithInterest(double amount, int payments) {
         double interestRate = getInterestRate(payments);
-        return amount * interestRate;
+        return amount * (1 + interestRate);
     }
 
     // Obtener la tasa de interés según los pagos
     private double getInterestRate(int payments) {
         if (payments == 12) {
-            return 1.20;  // 20%
+            return 0.20;  // 20%
         } else if (payments > 12) {
-            return 1.25;  // 25%
+            return 0.25;  // 25%
         } else {
-            return 1.15;  // 15%
+            return 0.15;  // 15%
         }
     }
 
-    public List<Loan> getLoansByClient(Client client) {
-        List<ClientLoan> clientLoans = clientLoanRepository.findByClient(client);
-        return clientLoans.stream()
-                .map(ClientLoan::getLoan)
-                .collect(Collectors.toList());
+    @Override
+    public List<ClientLoan> getLoansByClient(Client client) {
+        // Cambia a findByClient
+        return clientLoanRepository.findByClient(client);
     }
 
+
     // Método que aplica el préstamo al cliente
-    private void applyLoanToClient(Loan loan, double amount, int payments, Account destinationAccount, double totalAmount, Client client) {
+    private void applyLoanToClient(Loan loan, double amount, int payments, Account destinationAccount, double totalAmountWithInterest, Client client) {
         // Crear la transacción de crédito solo con el monto solicitado
         Transaction creditTransaction = new Transaction(TransactionType.CREDIT, amount,
                 "Approved " + loan.getName() + " loan.", LocalDateTime.now(), destinationAccount);
@@ -163,7 +158,8 @@ public class LoanServiceImpl implements LoanService {
         accountRepository.save(destinationAccount);
 
         // Crear y guardar la relación entre el cliente y el préstamo (ClientLoan)
-        ClientLoan clientLoan = new ClientLoan(totalAmount, payments, client, loan);
+        ClientLoan clientLoan = new ClientLoan(amount, payments, client, loan, destinationAccount);
+        clientLoan.setTotalAmount(totalAmountWithInterest); // Asegúrate de que el totalAmount esté calculado correctamente con intereses
         clientLoanRepository.save(clientLoan);  // Guardar el ClientLoan
 
         // Asegurar que el Client y el Loan tengan referencias bidireccionales actualizadas
@@ -174,5 +170,4 @@ public class LoanServiceImpl implements LoanService {
         clientRepository.save(client);  // Guardar el cliente actualizado
         loanRepository.save(loan);      // Guardar el préstamo actualizado
     }
-
 }

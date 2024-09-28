@@ -50,13 +50,11 @@ public class WebConfig {
                 //Se desactiva ya que utilizamos el h2-console para interactuar con la base de datos ya que es embebida en la app
                 .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(
                         HeadersConfigurer.FrameOptionsConfig::disable))
-                .authorizeHttpRequests(authorize ->
+                .authorizeHttpRequests((authorize) ->
                         authorize
-                                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-
-                                .requestMatchers("/api/current", "/api/accounts/clients/current/accounts", "/api/cards/clients/current/cards", "/api/transactions/clients/current/transactions"
-                                        , "/api/loans/apply", "/api/loans/loansAvailable", "/api/loans/loansApplied", "/api/accounts/delete/{id}").hasRole("CLIENT")
-                                .requestMatchers("/api/clients/", "/api/clients/**", "/api/accounts/", "/api/accounts/**", "/api/cards/", "/api/cards/**", "/api/loans/", "/api/loans/**").hasRole("ADMIN")
+                                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll() // Permitir acceso sin autenticación
+                                .requestMatchers("/api/auth/current", "/api/accounts/clients/current", "/api/accounts/clients/current/accounts", "/api/cards/clients/current/cards", "/api/transactions/", "/api/loans/apply", "/api/loans/clientLoans").hasRole("CLIENT")
+                                .requestMatchers("/api/clients/", "/api/clients/**", "/api/accounts/", "/api/accounts/**", "h2-console/**", "/api/loans/", "/api/loans/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
 

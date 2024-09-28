@@ -1,9 +1,13 @@
 package com.mainhub.homebanking.controllers;
 
+import com.mainhub.homebanking.DTO.ClientLoanDTO;
 import com.mainhub.homebanking.DTO.LoanAplicationDTO;
 import com.mainhub.homebanking.DTO.LoanDTO;
 import com.mainhub.homebanking.exeptions.ClientNotFoundException;
 import com.mainhub.homebanking.models.Client;
+import com.mainhub.homebanking.models.ClientLoan;
+import com.mainhub.homebanking.models.Loan;
+import com.mainhub.homebanking.services.ClientLoanService;
 import com.mainhub.homebanking.services.ClientServices;
 import com.mainhub.homebanking.services.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +29,39 @@ public class LoanController {
     @Autowired
     private ClientServices clientService;
 
+    @Autowired
+    private ClientLoanService clientLoanService;
+
     @GetMapping("/")
     public ResponseEntity<List<LoanDTO>> getAllLoans() {
         return new ResponseEntity<>(loanService.getAllLoanDTO(), HttpStatus.OK);
     }
 
     @GetMapping("/clientLoans")
-    public ResponseEntity<List<LoanDTO>> getClientLoans(Authentication authentication) {
+    public ResponseEntity<List<ClientLoanDTO>> getClientLoans(Authentication authentication) {
+        // Obtiene el cliente autenticado usando el email
         Client client = clientService.findByEmail(authentication.getName());
-        List<LoanDTO> clientLoans = loanService.getLoansByClient(client).stream()
-                .map(LoanDTO::new)
-                .collect(Collectors.toList());
+
+        // Obtener los préstamos del cliente
+        List<ClientLoanDTO> clientLoans = clientLoanService.getLoansByClient(client);
+
         return new ResponseEntity<>(clientLoans, HttpStatus.OK);
+    }
+
+    @GetMapping("/clientLoans/{loanId}")
+    public ResponseEntity<?> getClientLoanByLoanId(Authentication authentication, @PathVariable Long loanId) {
+        // Obtener al cliente autenticado
+        Client client = clientService.findByEmail(authentication.getName());
+
+        // Obtener el préstamo específico
+        Loan loan = loanService.getLoanById(loanId);
+        if (loan == null) {
+            return new ResponseEntity<>("Loan not found", HttpStatus.NOT_FOUND); // Corregido a String
+        }
+
+        // Obtener el préstamo del cliente
+        ClientLoanDTO clientLoan = clientLoanService.getClientLoanByClientAndLoan(client, loan);
+        return new ResponseEntity<>(clientLoan, HttpStatus.OK);
     }
 
 

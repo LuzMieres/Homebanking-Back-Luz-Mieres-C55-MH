@@ -1,5 +1,6 @@
 package com.mainhub.homebanking.repositories;
 
+import com.mainhub.homebanking.DTO.ClientLoanDTO;
 import com.mainhub.homebanking.models.Client;
 import com.mainhub.homebanking.models.ClientLoan;
 import com.mainhub.homebanking.models.Loan;
@@ -11,11 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface ClientLoanRepository extends JpaRepository<ClientLoan, Long> {
-    // Buscar préstamos por cliente
+    // Buscar todos los préstamos de un cliente
     List<ClientLoan> findByClient(Client client);
 
-    // Buscar relación préstamo-cliente específica
-    Optional<ClientLoan> findByLoanIdAndClient(Long loanId, Client client);
-
-    Optional<Object> findByClientAndLoan(Client client, Loan loan);
+    // Buscar un préstamo específico de un cliente
+    Optional<ClientLoan> findByClientAndLoan(Client client, Loan loan);
 }
+

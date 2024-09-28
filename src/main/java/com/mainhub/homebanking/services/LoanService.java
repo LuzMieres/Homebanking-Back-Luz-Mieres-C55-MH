@@ -2,6 +2,7 @@ package com.mainhub.homebanking.services;
 
 import com.mainhub.homebanking.DTO.LoanDTO;
 import com.mainhub.homebanking.models.Client;
+import com.mainhub.homebanking.models.ClientLoan;
 import com.mainhub.homebanking.models.Loan;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public interface LoanService {
     void applyForLoan(String loanName, double amount, int payments, String destinationAccountNumber, Client client);  // Solicitar un préstamo basado en el nombre
 
     // Asegúrate de que este método esté declarado en la interfaz
-    List<Loan> getLoansByClient(Client client);
+    List<ClientLoan> getLoansByClient(Client client);
 }

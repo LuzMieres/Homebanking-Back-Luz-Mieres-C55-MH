@@ -119,17 +119,17 @@ public class HomebankingApplication {
 			loanRepository.save(automotriz);
 
 			// Préstamos para Melba
-			ClientLoan clientLoan1 = new ClientLoan(400000, 60, melba, hipotcario);
+			ClientLoan clientLoan1 = new ClientLoan(400000, 60, melba, hipotcario, cuenta1Melba);
 			clientLoanRepository.save(clientLoan1);
 
-			ClientLoan clientLoan2 = new ClientLoan(50000, 12, melba, personal);
+			ClientLoan clientLoan2 = new ClientLoan(50000, 12, melba, personal, cuenta2Melba);
 			clientLoanRepository.save(clientLoan2);
 
 			// Préstamos para Luz
-			ClientLoan clientLoan3 = new ClientLoan(100000, 24, luz, personal);
+			ClientLoan clientLoan3 = new ClientLoan(100000, 24, luz, personal, cuenta1Luz);
 			clientLoanRepository.save(clientLoan3);
 
-			ClientLoan clientLoan4 = new ClientLoan(200000, 36, luz, automotriz);
+			ClientLoan clientLoan4 = new ClientLoan(200000, 36, luz, automotriz, cuenta2Luz);
 			clientLoanRepository.save(clientLoan4);
 
 			// Tarjetas
