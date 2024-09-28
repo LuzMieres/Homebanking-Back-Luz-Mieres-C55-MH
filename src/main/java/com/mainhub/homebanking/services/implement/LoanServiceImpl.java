@@ -175,6 +175,4 @@ public class LoanServiceImpl implements LoanService {
         loanRepository.save(loan);      // Guardar el préstamo actualizado
     }
 
-
-
 }
