@@ -18,22 +18,28 @@ public class ClientServicesImpl implements ClientServices {
 
         @Override
         public List<Client> getAllClient() {
-            return clientRepository.findAll();
+                return clientRepository.findAll();
         }
 
         @Override
-        public List<ClientDTO> getAllClientDto() {
-            return getAllClient().stream().map(ClientDTO::new).collect(Collectors.toList());
+        public List<ClientDTO> getAllClientDTO() {
+                return getAllClient().stream().map(ClientDTO::new).collect(Collectors.toList());
         }
 
         @Override
         public Client getClientById(Long id) {
-            return clientRepository.findById(id).orElse(null);
+                return clientRepository.findById(id).orElse(null);
         }
 
         @Override
-        public ClientDTO getClientDto(Client client) {
-            return new ClientDTO(client);
+        public ClientDTO getClientDTO(Client client) {
+                return new ClientDTO(client);
         }
+
+        @Override
+        public Client findByEmail(String email) {
+                return clientRepository.findByEmail(email); // No se utiliza orElse(null) aquí
+        }
+
 
 }

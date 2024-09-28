@@ -1,6 +1,5 @@
 package com.mainhub.homebanking.models;
 
-import com.mainhub.homebanking.utils.GenerateNumber;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -125,15 +124,10 @@ public class Client {
         clientLoan.setClient(this);
     }
 
-
-
     public void addCard(Card card){
         this.cards.add(card);
-        card.setFromDate(LocalDateTime.now());
-        card.setNumber(new GenerateNumber().generateNumber());
         card.setClient(this);
-        card.setCardHolder(this.firstName + " " + this.lastName);
-        card.setCvv(new Random().nextInt((999 - 100) + 1) + 100);
+        card.setCardHolder(this.getFirstName() + " " + this.getLastName());
     }
 
     @Override

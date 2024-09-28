@@ -34,6 +34,9 @@ public class Transaction {
         this.description = description;
     }
 
+    public Transaction(TransactionType type, double amount, String description, LocalDateTime now, Account account) {
+    }
+
     public long getId() {
         return id;
     }

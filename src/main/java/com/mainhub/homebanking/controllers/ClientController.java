@@ -1,22 +1,10 @@
 package com.mainhub.homebanking.controllers;
 
-import com.mainhub.homebanking.DTO.AccountDTO;
-import com.mainhub.homebanking.DTO.ClientDTO;
-import com.mainhub.homebanking.models.Account;
-import com.mainhub.homebanking.models.Client;
-import com.mainhub.homebanking.repositories.AccountRepository;
-import com.mainhub.homebanking.repositories.ClientRepository;
 import com.mainhub.homebanking.services.ClientServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -27,7 +15,7 @@ public class ClientController {
 
     @GetMapping("/")
     public ResponseEntity<?> getAllClients() {
-        return new ResponseEntity<>(clientService.getAllClientDto(), HttpStatus.OK);
+        return new ResponseEntity<>(clientService.getAllClientDTO(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -35,7 +23,7 @@ public class ClientController {
         if (clientService.getClientById(id) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(clientService.getClientDto(clientService.getClientById(id)), HttpStatus.OK);
+            return new ResponseEntity<>(clientService.getClientDTO(clientService.getClientById(id)), HttpStatus.OK);
         }
     }
 }

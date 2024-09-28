@@ -1,12 +1,9 @@
 package com.mainhub.homebanking;
 
-import com.mainhub.homebanking.DTO.AccountDTO;
-import com.mainhub.homebanking.DTO.ClientDTO;
 import com.mainhub.homebanking.models.*;
 import com.mainhub.homebanking.models.type.CardColor;
 import com.mainhub.homebanking.models.type.CardType;
 import com.mainhub.homebanking.models.type.TransactionType;
-import com.mainhub.homebanking.utils.GenerateNumber;
 import com.mainhub.homebanking.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -21,9 +18,6 @@ import java.util.Arrays;
 
 @SpringBootApplication
 public class HomebankingApplication {
-
-	@Autowired
-	private GenerateNumber num;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;

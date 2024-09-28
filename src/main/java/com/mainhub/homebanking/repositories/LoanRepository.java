@@ -8,9 +8,5 @@ import java.util.List;
 
 @Repository
 public interface LoanRepository extends JpaRepository<Loan, Long> {
-
-    Loan findByName(String name);
-
-
-
+    List<Loan> findByName(String name);
 }

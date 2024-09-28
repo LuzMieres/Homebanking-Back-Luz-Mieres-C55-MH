@@ -1,25 +1,22 @@
 package com.mainhub.homebanking.services.implement;
 
-import com.mainhub.homebanking.DTO.NewTransactionDTO;
+import com.mainhub.homebanking.DTO.TransferDTO;
 import com.mainhub.homebanking.models.Account;
 import com.mainhub.homebanking.models.Client;
 import com.mainhub.homebanking.models.Transaction;
 import com.mainhub.homebanking.models.type.TransactionType;
 import com.mainhub.homebanking.repositories.AccountRepository;
-import com.mainhub.homebanking.repositories.ClientRepository;
 import com.mainhub.homebanking.repositories.TransactionRepository;
+import com.mainhub.homebanking.services.AccountService;
 import com.mainhub.homebanking.services.TransactionsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 public class TransactionServiceImpl implements TransactionsService {
-
-    @Autowired
-    private ClientRepository clientRepository;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -27,98 +24,76 @@ public class TransactionServiceImpl implements TransactionsService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private AccountService accountService;
+
     @Transactional
-    @Override
-    public ResponseEntity<?> processTransaction(String email, NewTransactionDTO transactionDTO) {
+    public void createTransaction(TransferDTO transferDTO, Client client) throws Exception {
+        // Imprimir los datos recibidos para debugging
+        System.out.println("Amount: " + transferDTO.getAmount());
+        System.out.println("Origin Account: " + transferDTO.getOriginAccountNumber());
+        System.out.println("Destination Account: " + transferDTO.getDestinationAccountNumber());
 
-        if (validateTransaction(transactionDTO) != null) {
-            return new ResponseEntity<>(validateTransaction(transactionDTO), HttpStatus.BAD_REQUEST);
+        // Verificar que el monto sea mayor a cero
+        if (transferDTO.getAmount() <= 0) {
+            throw new IllegalArgumentException("The transaction amount must be greater than zero");
         }
 
-        if (checkClientAndAccounts(email, transactionDTO) != null) {
-            return new ResponseEntity<>(checkClientAndAccounts(email, transactionDTO), HttpStatus.BAD_REQUEST);
+        // Obtener la cuenta origen y verificar que exista
+        Account originAccount = accountService.getAccountByNumber(transferDTO.getOriginAccountNumber());
+        if (originAccount == null) {
+            throw new IllegalArgumentException("Origin account does not exist");
         }
 
-        if (validateAmount(transactionDTO) != null) {
-            return new ResponseEntity<>(validateAmount(transactionDTO), HttpStatus.BAD_REQUEST);
+        // Verificar que la cuenta de origen pertenece al cliente autenticado
+        if (!originAccount.getClient().equals(client)) {
+            throw new IllegalArgumentException("Origin account does not belong to the authenticated client");
         }
 
-        return new ResponseEntity<>(performTransaction(transactionDTO), HttpStatus.OK);
+        // Verificar que la cuenta de origen tenga suficiente saldo
+        if (originAccount.getBalance() < transferDTO.getAmount()) {
+            throw new IllegalArgumentException("Insufficient balance");
+        }
+
+        // Verificar que la cuenta de origen y destino no sean la misma
+        if (originAccount.getNumber().equals(transferDTO.getDestinationAccountNumber())) {
+            throw new IllegalArgumentException("Origin and destination accounts cannot be the same");
+        }
+
+        // Obtener la cuenta destino y verificar que exista
+        Account destinationAccount = accountService.getAccountByNumber(transferDTO.getDestinationAccountNumber());
+        if (destinationAccount == null) {
+            throw new IllegalArgumentException("Destination account does not exist");
+        }
+
+        // Procesar la transacción
+        processTransaction(transferDTO.getAmount(), transferDTO.getOriginAccountNumber(), transferDTO.getDestinationAccountNumber(), originAccount, destinationAccount);
     }
 
-    @Override
-    public String validateTransaction(NewTransactionDTO transactionDTO) {
-        if (transactionDTO.amount()  < 0) {
-            return "The 'amount' field must be positive.";
-        }
-        if(transactionDTO.amount() == 0) {
-            return "The 'amount' field is required and cannot be zero.";
-        }
 
-        if (transactionDTO.amount() == 0) {
-            return "The 'amount' field is required and cannot be zero.";
-        }
+    private void processTransaction(double amount, String originAccountNumber, String destinationAccountNumber, Account originAccount, Account destinationAccount) {
+        // Crear la transacción de débito para la cuenta de origen
+        Transaction debitTransaction = createTransaction(TransactionType.DEBIT, -amount, "Transfer to " + destinationAccountNumber, originAccount);
+        transactionRepository.save(debitTransaction);
 
-        if (transactionDTO.description().isBlank()) {
-            return "The 'description' field is required.";
-        }
+        // Crear la transacción de crédito para la cuenta de destino
+        Transaction creditTransaction = createTransaction(TransactionType.CREDIT, amount, "Transfer from " + originAccountNumber, destinationAccount);
+        transactionRepository.save(creditTransaction);
 
-        if (transactionDTO.sourceAccount().isBlank()) {
-            return "The 'source account' field is required.";
-        }
-
-        if (transactionDTO.destinationAccount().isBlank()) {
-            return "The 'destination account' field is required.";
-        }
-
-        if (transactionDTO.sourceAccount().equals(transactionDTO.destinationAccount())) {
-            return "Source and destination accounts cannot be the same";
-        }
-        return null;
+        // Actualizar los balances de las cuentas
+        updateAccountBalances(originAccount, destinationAccount, amount);
     }
 
-    @Override
-    public String checkClientAndAccounts(String email, NewTransactionDTO transactionDTO) {
-        Client client = clientRepository.findByEmail(email);
-
-        //Devuelve true si encuentra una cuenta con el número de cuenta
-        if (!accountRepository.existsByNumber(transactionDTO.destinationAccount())) {
-            return "Destination account not found";
-        }
-        //NoneMatch: devuelve true si ninguno de los elementos del stream coincide
-        if (client.getAccounts().stream().noneMatch(account -> account.getNumber().equals(transactionDTO.sourceAccount()))) {
-            return "Source account not found";
-        }
-
-        return null;
+    private Transaction createTransaction(TransactionType type, double amount, String description, Account account) {
+        return new Transaction(type, amount, description, LocalDateTime.now(), account);
     }
 
-    public Client getClient(String email) {
-        return clientRepository.findByEmail(email);
+    private void updateAccountBalances(Account originAccount, Account destinationAccount, double amount) {
+        originAccount.setBalance(originAccount.getBalance() - amount);
+        destinationAccount.setBalance(destinationAccount.getBalance() + amount);
+
+        accountRepository.save(originAccount);
+        accountRepository.save(destinationAccount);
     }
 
-    @Override
-    public String performTransaction(NewTransactionDTO transactionDTO) {
-        getSourceAccount(transactionDTO).addTransaction(transactionRepository.save(new Transaction(TransactionType.DEBIT, -transactionDTO.amount(), transactionDTO.description())));
-        getDestinationAccount(transactionDTO).addTransaction(transactionRepository.save(new Transaction(TransactionType.CREDIT, transactionDTO.amount(), transactionDTO.description())));
-        return "Transaction created";
-    }
-
-    @Override
-    public String validateAmount(NewTransactionDTO transactionDTO) {
-        if (getSourceAccount(transactionDTO).getBalance() < transactionDTO.amount()) {
-            return "Not enough balance";
-        }
-        return null;
-    }
-
-    @Override
-    public Account getSourceAccount(NewTransactionDTO transactionDTO) {
-        return accountRepository.findByNumber(transactionDTO.sourceAccount());
-    }
-
-    @Override
-    public Account getDestinationAccount(NewTransactionDTO transactionDTO) {
-        return accountRepository.findByNumber(transactionDTO.destinationAccount());
-    }
 }
