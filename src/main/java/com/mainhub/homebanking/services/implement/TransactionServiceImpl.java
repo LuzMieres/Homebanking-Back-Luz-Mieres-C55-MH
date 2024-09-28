@@ -1,6 +1,9 @@
 package com.mainhub.homebanking.services.implement;
 
 import com.mainhub.homebanking.DTO.TransferDTO;
+import com.mainhub.homebanking.exeptions.AccountNotBelongToClientException;
+import com.mainhub.homebanking.exeptions.AccountNotFoundException;
+import com.mainhub.homebanking.exeptions.InsufficientFundsException;
 import com.mainhub.homebanking.models.Account;
 import com.mainhub.homebanking.models.Client;
 import com.mainhub.homebanking.models.Transaction;
@@ -29,71 +32,77 @@ public class TransactionServiceImpl implements TransactionsService {
 
     @Transactional
     public void createTransaction(TransferDTO transferDTO, Client client) throws Exception {
-        // Imprimir los datos recibidos para debugging
-        System.out.println("Amount: " + transferDTO.getAmount());
-        System.out.println("Origin Account: " + transferDTO.getOriginAccountNumber());
-        System.out.println("Destination Account: " + transferDTO.getDestinationAccountNumber());
+        // Validar los datos recibidos
+        transferDTO.validate(); // Método agregado en el DTO
 
         // Verificar que el monto sea mayor a cero
         if (transferDTO.getAmount() <= 0) {
-            throw new IllegalArgumentException("The transaction amount must be greater than zero");
+            throw new IllegalArgumentException("The transaction amount must be greater than zero.");
         }
 
         // Obtener la cuenta origen y verificar que exista
         Account originAccount = accountService.getAccountByNumber(transferDTO.getOriginAccountNumber());
         if (originAccount == null) {
-            throw new IllegalArgumentException("Origin account does not exist");
+            throw new AccountNotFoundException("Origin account does not exist.");
         }
 
         // Verificar que la cuenta de origen pertenece al cliente autenticado
         if (!originAccount.getClient().equals(client)) {
-            throw new IllegalArgumentException("Origin account does not belong to the authenticated client");
+            throw new AccountNotBelongToClientException("Origin account does not belong to the authenticated client.");
         }
 
         // Verificar que la cuenta de origen tenga suficiente saldo
         if (originAccount.getBalance() < transferDTO.getAmount()) {
-            throw new IllegalArgumentException("Insufficient balance");
+            throw new InsufficientFundsException("Insufficient balance.");
+        }
+
+        // Validaciones adicionales según el tipo de transferencia
+        Account destinationAccount = accountService.getAccountByNumber(transferDTO.getDestinationAccountNumber());
+
+        if (transferDTO.getTransferType().equals("own")) {
+            // Verificar que la cuenta de destino pertenezca al cliente autenticado
+            if (destinationAccount == null || !destinationAccount.getClient().equals(client)) {
+                throw new AccountNotBelongToClientException("The destination account does not belong to the authenticated client.");
+            }
+        } else if (transferDTO.getTransferType().equals("other")) {
+            // Verificar que la cuenta de destino exista en la base de datos pero no pertenezca al cliente autenticado
+            if (destinationAccount == null) {
+                throw new AccountNotFoundException("Destination account does not exist.");
+            }
+            if (destinationAccount.getClient().equals(client)) {
+                throw new IllegalArgumentException("The destination account must not belong to the authenticated client.");
+            }
         }
 
         // Verificar que la cuenta de origen y destino no sean la misma
-        if (originAccount.getNumber().equals(transferDTO.getDestinationAccountNumber())) {
-            throw new IllegalArgumentException("Origin and destination accounts cannot be the same");
+        if (originAccount.getNumber().equals(destinationAccount.getNumber())) {
+            throw new IllegalArgumentException("Origin and destination accounts cannot be the same.");
         }
 
-        // Obtener la cuenta destino y verificar que exista
-        Account destinationAccount = accountService.getAccountByNumber(transferDTO.getDestinationAccountNumber());
-        if (destinationAccount == null) {
-            throw new IllegalArgumentException("Destination account does not exist");
-        }
+        // Crear la transacción de débito
+        Transaction debitTransaction = new Transaction(
+                TransactionType.DEBIT,
+                transferDTO.getAmount(),
+                transferDTO.getDescription(),
+                LocalDateTime.now(),
+                originAccount
+        );
+        originAccount.addTransaction(debitTransaction); // Añadir transacción de débito a la cuenta de origen
+        transactionRepository.save(debitTransaction); // Guardar transacción de débito en la base de datos
 
-        // Procesar la transacción
-        processTransaction(transferDTO.getAmount(), transferDTO.getOriginAccountNumber(), transferDTO.getDestinationAccountNumber(), originAccount, destinationAccount);
-    }
+        // Crear la transacción de crédito
+        Transaction creditTransaction = new Transaction(
+                TransactionType.CREDIT,
+                transferDTO.getAmount(),
+                transferDTO.getDescription(),
+                LocalDateTime.now(),
+                destinationAccount
+        );
+        destinationAccount.addTransaction(creditTransaction); // Añadir transacción de crédito a la cuenta de destino
+        transactionRepository.save(creditTransaction); // Guardar transacción de crédito en la base de datos
 
-
-    private void processTransaction(double amount, String originAccountNumber, String destinationAccountNumber, Account originAccount, Account destinationAccount) {
-        // Crear la transacción de débito para la cuenta de origen
-        Transaction debitTransaction = createTransaction(TransactionType.DEBIT, -amount, "Transfer to " + destinationAccountNumber, originAccount);
-        transactionRepository.save(debitTransaction);
-
-        // Crear la transacción de crédito para la cuenta de destino
-        Transaction creditTransaction = createTransaction(TransactionType.CREDIT, amount, "Transfer from " + originAccountNumber, destinationAccount);
-        transactionRepository.save(creditTransaction);
-
-        // Actualizar los balances de las cuentas
-        updateAccountBalances(originAccount, destinationAccount, amount);
-    }
-
-    private Transaction createTransaction(TransactionType type, double amount, String description, Account account) {
-        return new Transaction(type, amount, description, LocalDateTime.now(), account);
-    }
-
-    private void updateAccountBalances(Account originAccount, Account destinationAccount, double amount) {
-        originAccount.setBalance(originAccount.getBalance() - amount);
-        destinationAccount.setBalance(destinationAccount.getBalance() + amount);
-
+        // Guardar las cuentas actualizadas en la base de datos con los nuevos balances y transacciones
         accountRepository.save(originAccount);
         accountRepository.save(destinationAccount);
     }
-
 }

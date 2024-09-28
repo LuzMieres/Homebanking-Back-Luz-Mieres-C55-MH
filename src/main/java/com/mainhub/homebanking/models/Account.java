@@ -86,12 +86,12 @@ public class Account {
         transaction.setAccount(this);
 
         if (transaction.getType() == TransactionType.DEBIT) {
-            this.balance += transaction.getAmount();
-        } else {
-            this.balance += transaction.getAmount();
+            this.balance -= transaction.getAmount(); // Resta el monto para transacciones de débito
+        } else if (transaction.getType() == TransactionType.CREDIT) {
+            this.balance += transaction.getAmount(); // Suma el monto para transacciones de crédito
         }
-
     }
+
 
     public Set<Transaction> getTransactions() {
         return transactions;
@@ -108,6 +108,7 @@ public class Account {
                 ", number='" + number + '\'' +
                 ", creationDate=" + creationDate +
                 ", balance=" + balance +
+                ", transactions=" + transactions +
                 '}';
     }
 }

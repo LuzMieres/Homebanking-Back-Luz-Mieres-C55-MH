@@ -138,6 +138,8 @@ public class Client {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", accounts=" + accounts +
+                ", loans=" + loans +
+                ", cards=" + cards +
                 '}';
     }
 }

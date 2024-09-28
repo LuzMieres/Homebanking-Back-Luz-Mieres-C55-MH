@@ -4,7 +4,9 @@ import com.mainhub.homebanking.models.type.CardColor;
 import com.mainhub.homebanking.models.type.CardType;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Entity
 public class Card {
@@ -16,21 +18,25 @@ public class Card {
     @JoinColumn(name = "client_id")
     private Client client;
     private String CardHolder;
-    private int cvv;
+    private String cvv;
     private String number;
-    private LocalDateTime fromDate, thruDate;
+    private LocalDate fromDate;
+    private LocalDate thruDate;
     @Enumerated(EnumType.STRING) //Enumerated indica que el tipo de dato es una cadena
     private CardType type;
     @Enumerated(EnumType.STRING) //Enumerated indica que el tipo de dato es una cadena
     private CardColor color;
 
-    public Card(LocalDateTime expirationDate, CardType cardType, CardColor cardColor) {
-    }
-
     public Card() {
     }
 
-    public Card(LocalDateTime thruDate, CardType type, CardColor color, Client luz) {
+    public Card(LocalDateTime expirationDate, CardType cardType, CardColor cardColor) {
+    }
+
+    public Card(CardType debit, CardColor gold, LocalDate now, LocalDate localDate) {
+    }
+
+    public Card(LocalDate thruDate, CardType type, CardColor color, Client luz) {
 
         this.thruDate = thruDate;
         this.type = type;
@@ -65,27 +71,27 @@ public class Card {
         this.number = number;
     }
 
-    public int getCvv() {
+    public String getCvv() {
         return cvv;
     }
 
-    public void setCvv(int cvv) {
+    public void setCvv(String cvv) {
         this.cvv = cvv;
     }
 
-    public LocalDateTime getFromDate() {
+    public LocalDate getFromDate() {
         return fromDate;
     }
 
-    public void setFromDate(LocalDateTime fromDate) {
+    public void setFromDate(LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
-    public LocalDateTime getThruDate() {
+    public LocalDate getThruDate() {
         return thruDate;
     }
 
-    public void setThruDate(LocalDateTime thruDate) {
+    public void setThruDate(LocalDate thruDate) {
         this.thruDate = thruDate;
     }
 
@@ -104,4 +110,66 @@ public class Card {
     public void setColor(CardColor color) {
         this.color = color;
     }
+
+    @Override
+    public String toString() {
+        return "Card{" +
+                "id=" + id +
+                ", CardHolder='" + CardHolder + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", number='" + number + '\'' +
+                ", fromDate=" + fromDate +
+                ", thruDate=" + thruDate +
+                ", type=" + type +
+                ", color=" + color +
+                '}';
+    }
+
+    // Método para generar un número de tarjeta de crédito completo
+    public  String generateCardNumber() {
+        Random random = new Random(); // Crea una instancia de Random para generar números aleatorios
+        StringBuilder cardNumber = new StringBuilder(""); // Crea un StringBuilder para construir el número de tarjeta de crédito
+
+        // Generar los primeros 12 dígitos de la tarjeta
+        for (int i = 0; i < 4; i++) {
+            int digito = random.nextInt(10); // Genera un dígito aleatorio entre 0 y 9
+            cardNumber.append(digito); // Agrega el dígito al StringBuilder
+        }
+
+//        // Generar el siguiente dígito de la tarjeta (el dígito de verificación)
+//        int digitoVerificacion = calcularDigitoVerificacion(numeroTarjeta.toString()); // Calcula el dígito de verificación utilizando el método calcularDigitoVerificacion
+//        numeroTarjeta.append(digitoVerificacion); // Agrega el dígito de verificación al StringBuilder
+        return cardNumber.toString(); // Devuelve el número de tarjeta de crédito generado como una cadena de texto
+    }
+
+    // Método para generar un CVV aleatorio
+    public String generateCVV() {
+        Random random = new Random();
+        int cvv = random.nextInt(1000);
+
+        // Completa el número con ceros si tiene solo una o dos cifras
+        if (cvv < 10) {
+            cvv = cvv * 100;
+        } else if (cvv < 100) {
+            cvv = cvv * 10;
+        }
+
+        return String.valueOf(cvv);
+    }
+
+//    // Método privado para calcular el dígito de verificación de un número de tarjeta de crédito
+//    private int calcularDigitoVerificacion(String numeroTarjeta) {
+//        int suma = 0; // Inicializa la suma a 0
+//        int multiplicador = 1; // Inicializa el multiplicador a 1
+//
+//        // Recorre los dígitos del número de tarjeta de crédito en orden inverso
+//        for (int i = numeroTarjeta.length() - 1; i >= 0; i--) {
+//            int digito = Character.getNumericValue(numeroTarjeta.charAt(i)); // Convierte el dígito en un número entero
+//            suma += digito * multiplicador; // Calcula la suma de los dígitos multiplicados por el multiplicador
+//            multiplicador = (multiplicador == 1) ? 2 : 1; // Cambia el multiplicador a 2 si es 1, o a 1 si es 2
+//        }
+//
+//        int digitoVerificacion = (suma * 9) % 10; // Calcula el dígito de verificación como el resto de la suma multiplicada por 9 dividida por 10
+//        return (digitoVerificacion == 0) ? 0 : (10 - digitoVerificacion); // Devuelve el dígito de verificación o su complemento si es 0
+//    }
 }

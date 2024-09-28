@@ -28,13 +28,12 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(TransactionType type, double amount, String description) {
+    public Transaction(TransactionType type, double amount, String description, LocalDateTime date, Account account) {
         this.type = type;
         this.amount = amount;
         this.description = description;
-    }
-
-    public Transaction(TransactionType type, double amount, String description, LocalDateTime now, Account account) {
+        this.date = date;
+        this.account = account;
     }
 
     public long getId() {
@@ -93,7 +92,6 @@ public class Transaction {
                 ", amount=" + amount +
                 ", description='" + description + '\'' +
                 ", date=" + date +
-                ", account=" + account +
                 '}';
     }
 }

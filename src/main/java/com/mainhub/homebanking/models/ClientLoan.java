@@ -90,4 +90,15 @@ public class ClientLoan {
     public void setDestinationAccount(Account destinationAccount) {
         this.destinationAccount = destinationAccount;
     }
+
+    @Override
+    public String toString() {
+        return "ClientLoan{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", payments=" + payments +
+                ", totalAmount=" + totalAmount +
+                ", destinationAccount=" + destinationAccount +
+                '}';
+    }
 }

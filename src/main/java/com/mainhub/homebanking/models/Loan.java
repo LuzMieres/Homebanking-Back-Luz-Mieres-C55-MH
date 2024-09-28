@@ -66,6 +66,17 @@ public class Loan {
         this.loans = loans;
     }
 
+    @Override
+    public String toString() {
+        return "Loan{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", maxAmount=" + maxAmount +
+                ", payments=" + payments +
+                ", loans=" + loans +
+                '}';
+    }
+
     public void addClientLoan(ClientLoan clientLoan) {
         this.loans.add(clientLoan);
         clientLoan.setLoan(this);
