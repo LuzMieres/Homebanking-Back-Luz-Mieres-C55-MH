@@ -5,6 +5,7 @@ import com.mainhub.homebanking.models.*;
 import com.mainhub.homebanking.models.type.TransactionType;
 import com.mainhub.homebanking.repositories.*;
 import com.mainhub.homebanking.services.LoanService;
+import com.mainhub.homebanking.utils.LoanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class LoanServiceImpl implements LoanService {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private LoanUtil loanUtil;
 
     @Override
     public List<Loan> getAllLoans() {
@@ -65,7 +69,7 @@ public class LoanServiceImpl implements LoanService {
         Account destinationAccount = verifyDestinationAccount(destinationAccountNumber, client);
 
         // Calcular el monto total del préstamo con la tasa de interés
-        double totalAmountWithInterest = calculateTotalAmountWithInterest(amount, payments);
+        double totalAmountWithInterest = loanUtil.calculateTotalAmountWithInterest(amount, payments);
 
         // Aplicar el préstamo al cliente
         applyLoanToClient(loan, amount, payments, destinationAccount, totalAmountWithInterest, client);
@@ -122,22 +126,6 @@ public class LoanServiceImpl implements LoanService {
         return destinationAccount;
     }
 
-    // Calcular el monto total con la tasa de interés
-    private double calculateTotalAmountWithInterest(double amount, int payments) {
-        double interestRate = getInterestRate(payments);
-        return amount * (1 + interestRate);
-    }
-
-    // Obtener la tasa de interés según los pagos
-    private double getInterestRate(int payments) {
-        if (payments == 12) {
-            return 0.20;  // 20%
-        } else if (payments > 12) {
-            return 0.25;  // 25%
-        } else {
-            return 0.15;  // 15%
-        }
-    }
 
     @Override
     public List<ClientLoan> getLoansByClient(Client client) {

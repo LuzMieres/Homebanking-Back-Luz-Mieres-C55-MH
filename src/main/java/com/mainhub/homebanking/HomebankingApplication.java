@@ -5,6 +5,7 @@ import com.mainhub.homebanking.models.type.CardColor;
 import com.mainhub.homebanking.models.type.CardType;
 import com.mainhub.homebanking.models.type.TransactionType;
 import com.mainhub.homebanking.repositories.*;
+import com.mainhub.homebanking.utils.LoanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -21,6 +22,9 @@ public class HomebankingApplication {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private LoanUtil loanUtil;
 
 	public static void main(String[] args) {
 		SpringApplication.run(HomebankingApplication.class, args);
@@ -71,19 +75,19 @@ public class HomebankingApplication {
 			loanRepository.save(automotive);
 
 			// Loans for Client Melba
+			double totalAmountMortgageMelba = loanUtil.calculateTotalAmountWithInterest(400000, 48);  // Usa el método para calcular el monto con interés
 			ClientLoan mortgageLoanMelba = new ClientLoan(400000, 48, melba, mortgage, account1);
-			melba.addClientLoan(mortgageLoanMelba);
-			mortgage.addClientLoan(mortgageLoanMelba);
+			mortgageLoanMelba.setTotalAmount(totalAmountMortgageMelba);  // Establece el total con interés
 			clientLoanRepository.save(mortgageLoanMelba);
 
-			ClientLoan personalLoanMelba = new ClientLoan(100000, 12, melba, personal, account1);
-			melba.addClientLoan(personalLoanMelba);
-			personal.addClientLoan(personalLoanMelba);
+			double totalAmountPersonalMelba = loanUtil.calculateTotalAmountWithInterest(100000, 24);  // Otro ejemplo
+			ClientLoan personalLoanMelba = new ClientLoan(100000, 24, melba, personal, account1);
+			personalLoanMelba.setTotalAmount(totalAmountPersonalMelba);
 			clientLoanRepository.save(personalLoanMelba);
 
-			ClientLoan automotiveLoanMelba = new ClientLoan(250000, 36, melba, automotive, account2);
-			melba.addClientLoan(automotiveLoanMelba);
-			automotive.addClientLoan(automotiveLoanMelba);
+			double totalAmountAutomotiveMelba = loanUtil.calculateTotalAmountWithInterest(250000, 24);  // Otro ejemplo
+			ClientLoan automotiveLoanMelba = new ClientLoan(250000, 24, melba, automotive, account2);
+			automotiveLoanMelba.setTotalAmount(totalAmountAutomotiveMelba);
 			clientLoanRepository.save(automotiveLoanMelba);
 
 			// Cards
@@ -154,19 +158,19 @@ public class HomebankingApplication {
 			transactionRepository.save(paymentForInternetAna);
 
 			// Loans for Client Ana
-			ClientLoan mortgageLoanAna = new ClientLoan(300000, 36,ana, mortgage, account3);
-			ana.addClientLoan(mortgageLoanAna);
-			mortgage.addClientLoan(mortgageLoanAna);
+			double totalAmountMortgageAna = loanUtil.calculateTotalAmountWithInterest(350000, 60);  // Usa el método para calcular el monto con interés
+			ClientLoan mortgageLoanAna = new ClientLoan(350000, 60, ana, mortgage, account3);
+			mortgageLoanAna.setTotalAmount(totalAmountMortgageAna);  // Establece el total con interés
 			clientLoanRepository.save(mortgageLoanAna);
 
-			ClientLoan personalLoanAna = new ClientLoan(80000, 12, ana, personal, account4);
-			ana.addClientLoan(personalLoanAna);
-			personal.addClientLoan(personalLoanAna);
+			double totalAmountPersonalAna = loanUtil.calculateTotalAmountWithInterest(50000, 6);  // Otro ejemplo
+			ClientLoan personalLoanAna = new ClientLoan(50000, 6, ana, personal, account4);
+			personalLoanAna.setTotalAmount(totalAmountPersonalAna);
 			clientLoanRepository.save(personalLoanAna);
 
-			ClientLoan automotiveLoanAna = new ClientLoan(200000, 24, ana, automotive, account3);
-			ana.addClientLoan(automotiveLoanAna);
-			automotive.addClientLoan(automotiveLoanAna);
+			double totalAmountAutomotiveAna = loanUtil.calculateTotalAmountWithInterest(250000, 36);  // Otro ejemplo
+			ClientLoan automotiveLoanAna = new ClientLoan(250000, 36, ana, automotive, account4);
+			automotiveLoanAna.setTotalAmount(totalAmountAutomotiveAna);
 			clientLoanRepository.save(automotiveLoanAna);
 
 			// Add cards to Ana
@@ -202,19 +206,19 @@ public class HomebankingApplication {
 			transactionRepository.save(paymentForInternetLuz);
 
 			// Loans for Client Luz
-			ClientLoan mortgageLoanLuz = new ClientLoan(500000, 60, luz, mortgage, account5);
-			luz.addClientLoan(mortgageLoanLuz);
-			mortgage.addClientLoan(mortgageLoanLuz);
+			double totalAmountMortgageLuz = loanUtil.calculateTotalAmountWithInterest(450000, 72);  // Usa el método para calcular el monto con interés
+			ClientLoan mortgageLoanLuz = new ClientLoan(450000, 72, luz, mortgage, account5);
+			mortgageLoanLuz.setTotalAmount(totalAmountMortgageLuz);  // Establece el total con interés
 			clientLoanRepository.save(mortgageLoanLuz);
 
-			ClientLoan personalLoanLuz = new ClientLoan(100000, 24, luz, personal, account6);
-			luz.addClientLoan(personalLoanLuz);
-			personal.addClientLoan(personalLoanLuz);
+			double totalAmountPersonalLuz = loanUtil.calculateTotalAmountWithInterest(100000, 6);  // Otro ejemplo
+			ClientLoan personalLoanLuz = new ClientLoan(100000, 6, luz, personal, account6);
+			personalLoanLuz.setTotalAmount(totalAmountPersonalLuz);
 			clientLoanRepository.save(personalLoanLuz);
 
-			ClientLoan automotiveLoanLuz = new ClientLoan(300000, 36, luz, automotive, account6);
-			luz.addClientLoan(automotiveLoanLuz);
-			automotive.addClientLoan(automotiveLoanLuz);
+			double totalAmountAutomotiveLuz = loanUtil.calculateTotalAmountWithInterest(200000, 36);  // Otro ejemplo
+			ClientLoan automotiveLoanLuz = new ClientLoan(200000, 12, luz, automotive, account5);
+			automotiveLoanLuz.setTotalAmount(totalAmountAutomotiveLuz);
 			clientLoanRepository.save(automotiveLoanLuz);
 
 			// Add cards to Luz
