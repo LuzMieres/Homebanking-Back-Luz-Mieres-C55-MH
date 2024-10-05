@@ -66,7 +66,7 @@ public class HomebankingApplication {
 			transactionRepository.save(receivedTransfer2Melba);
 			transactionRepository.save(paymentForInternetMelba);
 
-			//Loans
+			// Loans
 			Loan mortgage = new Loan("Mortgage", 500000, Arrays.asList(12, 24, 36, 48, 60, 72));
 			Loan personal = new Loan("Personal", 100000, Arrays.asList(6, 12, 24));
 			Loan automotive = new Loan("Automotive", 300000, Arrays.asList(6, 12, 24, 36));
@@ -75,60 +75,41 @@ public class HomebankingApplication {
 			loanRepository.save(automotive);
 
 			// Loans for Client Melba
-			double totalAmountMortgageMelba = loanUtil.calculateTotalAmountWithInterest(400000, 48);  // Usa el método para calcular el monto con interés
+			double totalAmountMortgageMelba = loanUtil.calculateTotalAmountWithInterest(400000, 48);
 			ClientLoan mortgageLoanMelba = new ClientLoan(400000, 48, melba, mortgage, account1);
-			mortgageLoanMelba.setTotalAmount(totalAmountMortgageMelba);  // Establece el total con interés
+			mortgageLoanMelba.setTotalAmount(totalAmountMortgageMelba);
 			clientLoanRepository.save(mortgageLoanMelba);
 
-			double totalAmountPersonalMelba = loanUtil.calculateTotalAmountWithInterest(100000, 24);  // Otro ejemplo
+			double totalAmountPersonalMelba = loanUtil.calculateTotalAmountWithInterest(100000, 24);
 			ClientLoan personalLoanMelba = new ClientLoan(100000, 24, melba, personal, account1);
 			personalLoanMelba.setTotalAmount(totalAmountPersonalMelba);
 			clientLoanRepository.save(personalLoanMelba);
 
-			double totalAmountAutomotiveMelba = loanUtil.calculateTotalAmountWithInterest(250000, 24);  // Otro ejemplo
+			double totalAmountAutomotiveMelba = loanUtil.calculateTotalAmountWithInterest(250000, 24);
 			ClientLoan automotiveLoanMelba = new ClientLoan(250000, 24, melba, automotive, account2);
 			automotiveLoanMelba.setTotalAmount(totalAmountAutomotiveMelba);
 			clientLoanRepository.save(automotiveLoanMelba);
 
-			// Cards
-			// DEBIT CARDS
+			// Cards for Client Melba
 			Card debitCardGold = new Card(CardType.DEBIT, CardColor.GOLD, LocalDate.now(), LocalDate.now().plusYears(5));
-			String cardNumber1 = debitCardGold.generateCardNumber();
-			String cardNumber2 = debitCardGold.generateCardNumber();
-			String cardNumber3 = debitCardGold.generateCardNumber();
-			String cardNumber4 = debitCardGold.generateCardNumber();
-			debitCardGold.setNumber(cardNumber1 + " " + cardNumber2 + " " + cardNumber3 + " " + cardNumber4);
+			debitCardGold.setNumber(debitCardGold.generateCardNumber());
 			debitCardGold.setCvv(debitCardGold.generateCVV());
-
-			Card debitCardSilver = new Card(CardType.DEBIT, CardColor.SILVER, LocalDate.now(), LocalDate.now().plusYears(5));
-			debitCardSilver.setNumber(debitCardSilver.generateCardNumber());
-			debitCardSilver.setCvv(debitCardSilver.generateCVV());
-
-			Card debitCardTitanium = new Card(CardType.DEBIT, CardColor.TITANIUM, LocalDate.now(), LocalDate.now().plusYears(5));
-			debitCardTitanium.setNumber(debitCardTitanium.generateCardNumber());
-			debitCardTitanium.setCvv(debitCardGold.generateCVV());
-
-			// CREDIT CARDS
-			Card creditCardGold = new Card(CardType.CREDIT, CardColor.GOLD, LocalDate.now(), LocalDate.now().plusYears(5));
-			creditCardGold.setNumber(creditCardGold.generateCardNumber());
-			creditCardGold.setCvv(creditCardGold.generateCVV());
-
-			Card creditCardSilver = new Card(CardType.CREDIT, CardColor.SILVER, LocalDate.now(), LocalDate.now().plusYears(5));
-			creditCardSilver.setNumber(creditCardSilver.generateCardNumber());
-			creditCardSilver.setCvv(creditCardGold.generateCVV());
+			debitCardGold.setFromDate(LocalDate.now());
+			debitCardGold.setThruDate(LocalDate.now().plusYears(5));
+			debitCardGold.setColor(CardColor.GOLD);
+			debitCardGold.setType(CardType.DEBIT);
 
 			Card creditCardTitanium = new Card(CardType.CREDIT, CardColor.TITANIUM, LocalDate.now(), LocalDate.now().plusYears(5));
-			String cardNumber5 = creditCardTitanium.generateCardNumber();
-			String cardNumber6 = creditCardTitanium.generateCardNumber();
-			String cardNumber7 = creditCardTitanium.generateCardNumber();
-			String cardNumber8 = creditCardTitanium.generateCardNumber();
-			creditCardTitanium.setNumber(cardNumber5 + " " + cardNumber6 + " " + cardNumber7 + " " + cardNumber8);
+			creditCardTitanium.setNumber(creditCardTitanium.generateCardNumber());
 			creditCardTitanium.setCvv(creditCardTitanium.generateCVV());
+			creditCardTitanium.setFromDate(LocalDate.now());
+			creditCardTitanium.setThruDate(LocalDate.now().plusYears(5));
+			creditCardTitanium.setColor(CardColor.TITANIUM);
+			creditCardTitanium.setType(CardType.CREDIT);
 
-			// Add cards to Melba
 			melba.addCard(debitCardGold);
-			cardRepository.save(debitCardGold);
 			melba.addCard(creditCardTitanium);
+			cardRepository.save(debitCardGold);
 			cardRepository.save(creditCardTitanium);
 
 			// Client Ana
@@ -158,25 +139,41 @@ public class HomebankingApplication {
 			transactionRepository.save(paymentForInternetAna);
 
 			// Loans for Client Ana
-			double totalAmountMortgageAna = loanUtil.calculateTotalAmountWithInterest(350000, 60);  // Usa el método para calcular el monto con interés
+			double totalAmountMortgageAna = loanUtil.calculateTotalAmountWithInterest(350000, 60);
 			ClientLoan mortgageLoanAna = new ClientLoan(350000, 60, ana, mortgage, account3);
-			mortgageLoanAna.setTotalAmount(totalAmountMortgageAna);  // Establece el total con interés
+			mortgageLoanAna.setTotalAmount(totalAmountMortgageAna);
 			clientLoanRepository.save(mortgageLoanAna);
 
-			double totalAmountPersonalAna = loanUtil.calculateTotalAmountWithInterest(50000, 6);  // Otro ejemplo
+			double totalAmountPersonalAna = loanUtil.calculateTotalAmountWithInterest(50000, 6);
 			ClientLoan personalLoanAna = new ClientLoan(50000, 6, ana, personal, account4);
 			personalLoanAna.setTotalAmount(totalAmountPersonalAna);
 			clientLoanRepository.save(personalLoanAna);
 
-			double totalAmountAutomotiveAna = loanUtil.calculateTotalAmountWithInterest(250000, 36);  // Otro ejemplo
+			double totalAmountAutomotiveAna = loanUtil.calculateTotalAmountWithInterest(250000, 36);
 			ClientLoan automotiveLoanAna = new ClientLoan(250000, 36, ana, automotive, account4);
 			automotiveLoanAna.setTotalAmount(totalAmountAutomotiveAna);
 			clientLoanRepository.save(automotiveLoanAna);
 
-			// Add cards to Ana
+			// Cards for Client Ana
+			Card debitCardSilver = new Card(CardType.DEBIT, CardColor.SILVER, LocalDate.now(), LocalDate.now().plusYears(5));
+			debitCardSilver.setNumber(debitCardSilver.generateCardNumber());
+			debitCardSilver.setCvv(debitCardSilver.generateCVV());
+			debitCardSilver.setFromDate(LocalDate.now());
+			debitCardSilver.setThruDate(LocalDate.now().plusYears(5));
+			debitCardSilver.setColor(CardColor.SILVER);
+			debitCardSilver.setType(CardType.DEBIT);
+
+			Card creditCardGold = new Card(CardType.CREDIT, CardColor.GOLD, LocalDate.now(), LocalDate.now().plusYears(5));
+			creditCardGold.setNumber(creditCardGold.generateCardNumber());
+			creditCardGold.setCvv(creditCardGold.generateCVV());
+			creditCardGold.setFromDate(LocalDate.now());
+			creditCardGold.setThruDate(LocalDate.now().plusYears(5));
+			creditCardGold.setColor(CardColor.GOLD);
+			creditCardGold.setType(CardType.CREDIT);
+
 			ana.addCard(debitCardSilver);
-			cardRepository.save(debitCardSilver);
 			ana.addCard(creditCardGold);
+			cardRepository.save(debitCardSilver);
 			cardRepository.save(creditCardGold);
 
 			// Client Luz
@@ -206,25 +203,41 @@ public class HomebankingApplication {
 			transactionRepository.save(paymentForInternetLuz);
 
 			// Loans for Client Luz
-			double totalAmountMortgageLuz = loanUtil.calculateTotalAmountWithInterest(450000, 72);  // Usa el método para calcular el monto con interés
+			double totalAmountMortgageLuz = loanUtil.calculateTotalAmountWithInterest(450000, 72);
 			ClientLoan mortgageLoanLuz = new ClientLoan(450000, 72, luz, mortgage, account5);
-			mortgageLoanLuz.setTotalAmount(totalAmountMortgageLuz);  // Establece el total con interés
+			mortgageLoanLuz.setTotalAmount(totalAmountMortgageLuz);
 			clientLoanRepository.save(mortgageLoanLuz);
 
-			double totalAmountPersonalLuz = loanUtil.calculateTotalAmountWithInterest(100000, 6);  // Otro ejemplo
+			double totalAmountPersonalLuz = loanUtil.calculateTotalAmountWithInterest(100000, 6);
 			ClientLoan personalLoanLuz = new ClientLoan(100000, 6, luz, personal, account6);
 			personalLoanLuz.setTotalAmount(totalAmountPersonalLuz);
 			clientLoanRepository.save(personalLoanLuz);
 
-			double totalAmountAutomotiveLuz = loanUtil.calculateTotalAmountWithInterest(200000, 36);  // Otro ejemplo
+			double totalAmountAutomotiveLuz = loanUtil.calculateTotalAmountWithInterest(200000, 36);
 			ClientLoan automotiveLoanLuz = new ClientLoan(200000, 12, luz, automotive, account5);
 			automotiveLoanLuz.setTotalAmount(totalAmountAutomotiveLuz);
 			clientLoanRepository.save(automotiveLoanLuz);
 
-			// Add cards to Luz
+			// Cards for Client Luz
+			Card debitCardTitanium = new Card(CardType.DEBIT, CardColor.TITANIUM, LocalDate.now(), LocalDate.now().plusYears(5));
+			debitCardTitanium.setNumber(debitCardTitanium.generateCardNumber());
+			debitCardTitanium.setCvv(debitCardTitanium.generateCVV());
+			debitCardTitanium.setFromDate(LocalDate.now());
+			debitCardTitanium.setThruDate(LocalDate.now().plusYears(5));
+			debitCardTitanium.setColor(CardColor.TITANIUM);
+			debitCardTitanium.setType(CardType.DEBIT);
+
+			Card creditCardSilver = new Card(CardType.CREDIT, CardColor.SILVER, LocalDate.now(), LocalDate.now().plusYears(5));
+			creditCardSilver.setNumber(creditCardSilver.generateCardNumber());
+			creditCardSilver.setCvv(creditCardSilver.generateCVV());
+			creditCardSilver.setFromDate(LocalDate.now());
+			creditCardSilver.setThruDate(LocalDate.now().plusYears(5));
+			creditCardSilver.setColor(CardColor.SILVER);
+			creditCardSilver.setType(CardType.CREDIT);
+
 			luz.addCard(debitCardTitanium);
-			cardRepository.save(debitCardTitanium);
 			luz.addCard(creditCardSilver);
+			cardRepository.save(debitCardTitanium);
 			cardRepository.save(creditCardSilver);
 
 			// Print details of the 3 clients

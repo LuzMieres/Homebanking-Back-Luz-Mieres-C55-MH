@@ -8,12 +8,15 @@ import com.mainhub.homebanking.models.type.CardType;
 import com.mainhub.homebanking.repositories.CardRepository;
 import com.mainhub.homebanking.repositories.ClientRepository;
 import com.mainhub.homebanking.services.CardService;
+import com.mainhub.homebanking.services.ClientServices;
 import com.mainhub.homebanking.utils.UtilMetod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CardServiceImpl implements CardService {
@@ -26,6 +29,9 @@ public class CardServiceImpl implements CardService {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private ClientServices clientService;
 
     @Override
     public CardDTO createCardForCurrentClient(Client client, String type, String color) {
@@ -69,6 +75,21 @@ public class CardServiceImpl implements CardService {
     public Card findDebitCardByClient(Client client) {
         return cardRepository.findByClientAndType(client, CardType.DEBIT)
                 .orElseThrow(() -> new IllegalArgumentException("No debit card associated with the client"));
+    }
+
+    @Override
+    public Set<CardDTO> getClientCardsForCurrentClient(String email) {
+        Client client = clientService.findByEmail(email);
+        return getClientCardDtos(client);
+    }
+
+    //---------------------------------------------------------------
+    //Metodo que toma un cliente y devuelve un Set<CardDto> que contienen todas las tarjetas del cliente.
+    @Override
+    public Set<CardDTO> getClientCardDtos(Client client) {
+        return client.getCards().stream()
+                .map(CardDTO::new)
+                .collect(Collectors.toSet());
     }
 
 }
