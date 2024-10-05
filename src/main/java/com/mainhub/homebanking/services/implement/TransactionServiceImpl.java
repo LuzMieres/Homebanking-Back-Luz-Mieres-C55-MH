@@ -13,6 +13,7 @@ import com.mainhub.homebanking.repositories.TransactionRepository;
 import com.mainhub.homebanking.services.AccountService;
 import com.mainhub.homebanking.services.TransactionsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class TransactionServiceImpl implements TransactionsService {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    @Lazy
     private AccountService accountService;
 
     @Transactional
@@ -104,5 +106,15 @@ public class TransactionServiceImpl implements TransactionsService {
         // Guardar las cuentas actualizadas en la base de datos con los nuevos balances y transacciones
         accountRepository.save(originAccount);
         accountRepository.save(destinationAccount);
+    }
+
+    public void registerTransaction(Account account, double amount, String description) {
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
+        transaction.setDescription(description);
+        transaction.setDate(LocalDateTime.now());
+
+        transactionRepository.save(transaction); // Guardar la transacción
     }
 }

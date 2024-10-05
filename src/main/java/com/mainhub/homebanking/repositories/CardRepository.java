@@ -16,6 +16,6 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> findByClientAndColorAndType(Client client, CardColor color, CardType type);
 
-    Optional<Object> findByNumber(String number);
+    Optional<Card> findByClientAndType(Client client, CardType type);
 }
 

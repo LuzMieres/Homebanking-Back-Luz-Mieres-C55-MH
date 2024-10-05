@@ -27,6 +27,10 @@ public class Card {
     @Enumerated(EnumType.STRING) //Enumerated indica que el tipo de dato es una cadena
     private CardColor color;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
     public Card() {
     }
 
@@ -109,6 +113,14 @@ public class Card {
 
     public void setColor(CardColor color) {
         this.color = color;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     @Override

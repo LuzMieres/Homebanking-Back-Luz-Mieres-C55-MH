@@ -6,6 +6,7 @@ import com.mainhub.homebanking.models.Client;
 import com.mainhub.homebanking.repositories.AccountRepository;
 import com.mainhub.homebanking.services.AccountService;
 import com.mainhub.homebanking.services.ClientServices;
+import com.mainhub.homebanking.services.TransactionsService;
 import com.mainhub.homebanking.utils.UtilMetod;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private ClientServices clientService;
+
+    private TransactionsService transactionsService;
+
+    @Autowired
+    public void setTransactionsService(TransactionsService transactionsService) {
+        this.transactionsService = transactionsService;
+    }
 
     @Override
     public AccountDTO createAccountForCurrentClient(Client client) {
@@ -95,5 +103,18 @@ public class AccountServiceImpl implements AccountService {
                 .stream()
                 .map(AccountDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    // Método para debitar la cuenta
+    @Override
+    public void debitAccount(Account account, double amount) {
+        if (account.getBalance() < amount) {
+            throw new IllegalArgumentException("Insufficient funds");
+        }
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account); // Guardar los cambios en la cuenta
+
+        // Crear y guardar la transacción
+        transactionsService.registerTransaction(account, amount, "Payment debit");
     }
 }

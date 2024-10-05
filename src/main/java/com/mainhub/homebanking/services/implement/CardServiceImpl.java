@@ -64,4 +64,11 @@ public class CardServiceImpl implements CardService {
             throw new IllegalArgumentException("You already have a card of this type and color");
         }
     }
+
+    @Override
+    public Card findDebitCardByClient(Client client) {
+        return cardRepository.findByClientAndType(client, CardType.DEBIT)
+                .orElseThrow(() -> new IllegalArgumentException("No debit card associated with the client"));
+    }
+
 }

@@ -14,4 +14,7 @@ public interface AccountService {
     Client getAuthenticatedClient(Authentication authentication);
     List<AccountDTO> getClientAccounts(Client client);
     Account getAccountByNumber(String accountNumber) throws Exception;
+
+    // Método para debitar la cuenta
+    void debitAccount(Account account, double amount);
 }
