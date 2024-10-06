@@ -4,8 +4,12 @@ import com.mainhub.homebanking.DTO.ClientDTO;
 import com.mainhub.homebanking.DTO.LoginDTO;
 import com.mainhub.homebanking.DTO.RegisterDTO;
 import com.mainhub.homebanking.models.Account;
+import com.mainhub.homebanking.models.Card;
 import com.mainhub.homebanking.models.Client;
+import com.mainhub.homebanking.models.type.CardColor;
+import com.mainhub.homebanking.models.type.CardType;
 import com.mainhub.homebanking.repositories.AccountRepository;
+import com.mainhub.homebanking.repositories.CardRepository;
 import com.mainhub.homebanking.repositories.ClientRepository;
 import com.mainhub.homebanking.services.AuthService;
 import com.mainhub.homebanking.services.ClientServices;
@@ -48,6 +52,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private ClientServices clientService;
+
+    @Autowired
+    private CardRepository cardRepository;
 
     // Ajustes en los patrones de validación
     private final Pattern namePattern = Pattern.compile("^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóúñÑ ]*$"); // No permite que empiece con espacio
@@ -108,8 +115,25 @@ public class AuthServiceImpl implements AuthService {
         account.setCreationDate(LocalDate.now());
         accountRepository.save(account);
 
+        // Crear y asociar la tarjeta de débito SILVER
+        Card debitCardSilver = new Card();
+        debitCardSilver.setClient(client); // Asociar la tarjeta al cliente
+        debitCardSilver.setType(CardType.DEBIT);
+        debitCardSilver.setColor(CardColor.SILVER);
+        debitCardSilver.setNumber(debitCardSilver.generateCardNumber()); // Genera el número de tarjeta
+        debitCardSilver.setCvv(debitCardSilver.generateCVV());
+        debitCardSilver.setCardHolder(client.getFirstName() + " " + client.getLastName());// Genera el CVV
+        debitCardSilver.setFromDate(LocalDate.now());
+        debitCardSilver.setThruDate(LocalDate.now().plusYears(5)); // Por ejemplo, válida por 5 años
+        debitCardSilver.setAccount(account); // Asociar la tarjeta a la cuenta
+
+        // Guarda la tarjeta en el repositorio
+        cardRepository.save(debitCardSilver);
+        clientRepository.save(client);
+
         return client;
     }
+
 
     @Override
     public ClientDTO getCurrentClient(String email) {
