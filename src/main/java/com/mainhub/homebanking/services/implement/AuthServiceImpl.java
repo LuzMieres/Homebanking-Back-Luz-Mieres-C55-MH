@@ -108,13 +108,6 @@ public class AuthServiceImpl implements AuthService {
 
         clientRepository.save(client);
 
-        // Generar la cuenta para el nuevo cliente
-        Account account = new Account();
-        account.setClient(client);
-        account.setNumber(utilMetod.generateAccountNumber());
-        account.setCreationDate(LocalDate.now());
-        accountRepository.save(account);
-
         // Crear y asociar la tarjeta de débito SILVER
         Card debitCardSilver = new Card();
         debitCardSilver.setClient(client); // Asociar la tarjeta al cliente
@@ -125,10 +118,17 @@ public class AuthServiceImpl implements AuthService {
         debitCardSilver.setCardHolder(client.getFirstName() + " " + client.getLastName());// Genera el CVV
         debitCardSilver.setFromDate(LocalDate.now());
         debitCardSilver.setThruDate(LocalDate.now().plusYears(5)); // Por ejemplo, válida por 5 años
-        debitCardSilver.setAccount(account); // Asociar la tarjeta a la cuenta
-
         // Guarda la tarjeta en el repositorio
         cardRepository.save(debitCardSilver);
+
+        // Generar la cuenta para el nuevo cliente
+        Account account = new Account();
+        account.setClient(client);
+        account.setNumber(utilMetod.generateAccountNumber());
+        account.setCreationDate(LocalDate.now());
+        account.addCard(debitCardSilver);
+        accountRepository.save(account);
+
         clientRepository.save(client);
 
         return client;

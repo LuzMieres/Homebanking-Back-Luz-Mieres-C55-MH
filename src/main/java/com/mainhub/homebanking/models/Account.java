@@ -120,4 +120,9 @@ public class Account {
                 ", transactions=" + transactions +
                 '}';
     }
+
+    public void addCard(Card card){
+        this.cards.add(card);
+        card.setAccount(this);
+    }
 }

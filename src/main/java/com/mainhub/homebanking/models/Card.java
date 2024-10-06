@@ -137,6 +137,8 @@ public class Card {
                 '}';
     }
 
+
+
     // Método para generar un número de tarjeta de crédito completo
     public String generateCardNumber() {
         Random random = new Random(); // Crea una instancia de Random para generar números aleatorios

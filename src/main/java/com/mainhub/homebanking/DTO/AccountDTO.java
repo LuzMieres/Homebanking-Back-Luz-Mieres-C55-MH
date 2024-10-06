@@ -15,6 +15,7 @@ public class AccountDTO {
 
     private LocalDate creationDate;
     private Set<TransactionDTO> transactions = new HashSet<>();
+    private Set<CardDTO> cards = new HashSet<>();
 
     public AccountDTO() {
     }
@@ -25,7 +26,7 @@ public class AccountDTO {
         this.creationDate = account.getCreationDate();
         this.balance = account.getBalance();
         this.transactions = account.getTransactions().stream().map(TransactionDTO::new).collect(Collectors.toSet());
-
+        this.cards = account.getCards().stream().map(CardDTO::new).collect(Collectors.toSet());
     }
 
     public Long getId() {
@@ -46,5 +47,9 @@ public class AccountDTO {
 
     public LocalDate getCreationDate() {
         return creationDate;
+    }
+
+    public Set<CardDTO> getCards() {
+        return cards;
     }
 }
