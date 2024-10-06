@@ -3,14 +3,12 @@ package com.mainhub.homebanking.controllers;
 import com.mainhub.homebanking.DTO.PaymentRequestDTO;
 import com.mainhub.homebanking.models.Account;
 import com.mainhub.homebanking.models.Card;
-import com.mainhub.homebanking.models.Client;
 import com.mainhub.homebanking.services.AccountService;
 import com.mainhub.homebanking.services.CardService;
 import com.mainhub.homebanking.services.TransactionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,13 +28,11 @@ public class PaymentController {
     private TransactionsService transactionsService; // Para registrar transacciones
 
     @PostMapping("/pay-order")
-    public ResponseEntity<?> payOrder(Authentication authentication, @RequestBody PaymentRequestDTO paymentRequestDTO) {
+    public ResponseEntity<?> payOrder(@RequestBody PaymentRequestDTO paymentRequestDTO) {
         try {
-            // Obtener el cliente autenticado
-            Client client = accountService.getAuthenticatedClient(authentication);
+            // Obtener la tarjeta de débito a través del cliente relacionado con la cuenta, por ejemplo
+            Card debitCard = cardService.findDebitCardByClientAccount(paymentRequestDTO.getOrderId());
 
-            // Verificar que la tarjeta de débito esté vinculada al cliente
-            Card debitCard = cardService.findDebitCardByClient(client);
             if (debitCard == null) {
                 return new ResponseEntity<>("No debit card associated with the client", HttpStatus.BAD_REQUEST);
             }
@@ -65,4 +61,3 @@ public class PaymentController {
         }
     }
 }
-

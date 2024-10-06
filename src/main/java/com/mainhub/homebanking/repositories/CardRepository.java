@@ -17,5 +17,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> findByClientAndColorAndType(Client client, CardColor color, CardType type);
 
     Optional<Card> findByClientAndType(Client client, CardType type);
+
+    Card findByAccountIdAndType(Long accountId, CardType type);
 }
 

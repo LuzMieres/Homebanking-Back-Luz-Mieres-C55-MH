@@ -92,4 +92,10 @@ public class CardServiceImpl implements CardService {
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public Card findDebitCardByClientAccount(Long accountId) {
+        // Suponiendo que tienes una relación entre Tarjeta y Cuenta, puedes realizar una consulta en el repositorio
+        return cardRepository.findByAccountIdAndType(accountId, CardType.DEBIT);
+    }
+
 }

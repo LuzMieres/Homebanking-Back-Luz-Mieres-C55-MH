@@ -16,4 +16,6 @@ public interface CardService {
     //---------------------------------------------------------------
     //Metodo que toma un cliente y devuelve un Set<CardDto> que contienen todas las tarjetas del cliente.
     Set<CardDTO> getClientCardDtos(Client client);
+
+    Card findDebitCardByClientAccount(Long accountId);
 }
