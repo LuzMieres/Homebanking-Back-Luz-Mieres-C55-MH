@@ -28,6 +28,9 @@ public class PaymentController {
     @PostMapping("/pay-order")
     public ResponseEntity<?> payOrder(@RequestBody PaymentRequestDTO paymentRequestDTO) {
         try {
+            System.out.println("PaymentRequestDTO: " + paymentRequestDTO);
+            System.out.println("Card Number: " + paymentRequestDTO.getCardDetails().getCardNumber());
+
             // 1. Obtener la tarjeta de débito a través del número de tarjeta enviado en la solicitud
             String cardNumber = paymentRequestDTO.getCardDetails().getCardNumber();
             Card debitCard = cardService.findByCardNumber(cardNumber);
