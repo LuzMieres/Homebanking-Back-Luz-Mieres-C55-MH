@@ -98,4 +98,9 @@ public class CardServiceImpl implements CardService {
         return cardRepository.findByAccountIdAndType(accountId, CardType.DEBIT);
     }
 
+    @Override
+    public Card findByCardNumber(String cardNumber) {
+        return cardRepository.findByNumber(cardNumber); // Buscar por número de tarjeta
+    }
+
 }

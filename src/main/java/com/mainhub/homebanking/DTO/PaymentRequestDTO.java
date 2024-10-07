@@ -2,7 +2,8 @@ package com.mainhub.homebanking.DTO;
 
 public class PaymentRequestDTO {
     private Long orderId;
-    private double amount; // El monto que se va a descontar de la cuenta
+    private double amount;
+    private CardDetailsDTO cardDetails; // Agregamos el objeto CardDetailsDTO
 
     // Getters y setters
     public Long getOrderId() {
@@ -20,5 +21,12 @@ public class PaymentRequestDTO {
     public void setAmount(double amount) {
         this.amount = amount;
     }
-}
 
+    public CardDetailsDTO getCardDetails() {
+        return cardDetails;
+    }
+
+    public void setCardDetails(CardDetailsDTO cardDetails) {
+        this.cardDetails = cardDetails;
+    }
+}

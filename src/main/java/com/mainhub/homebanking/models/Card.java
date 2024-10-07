@@ -22,6 +22,8 @@ public class Card {
     private String number;
     private LocalDate fromDate;
     private LocalDate thruDate;
+
+    private boolean isDebit;
     @Enumerated(EnumType.STRING) //Enumerated indica que el tipo de dato es una cadena
     private CardType type;
     @Enumerated(EnumType.STRING) //Enumerated indica que el tipo de dato es una cadena
@@ -97,6 +99,14 @@ public class Card {
 
     public void setThruDate(LocalDate thruDate) {
         this.thruDate = thruDate;
+    }
+
+    public boolean isDebitCard() {
+        return isDebit;
+    }
+
+    public void setDebit(boolean debit) {
+        isDebit = debit;
     }
 
     public CardType getType() {

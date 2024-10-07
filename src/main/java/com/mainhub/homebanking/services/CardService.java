@@ -18,4 +18,6 @@ public interface CardService {
     Set<CardDTO> getClientCardDtos(Client client);
 
     Card findDebitCardByClientAccount(Long accountId);
+
+    Card findByCardNumber(String cardNumber);
 }

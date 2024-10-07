@@ -9,12 +9,10 @@ import com.mainhub.homebanking.services.TransactionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/payments")
 public class PaymentController {
 
@@ -30,29 +28,35 @@ public class PaymentController {
     @PostMapping("/pay-order")
     public ResponseEntity<?> payOrder(@RequestBody PaymentRequestDTO paymentRequestDTO) {
         try {
-            // Obtener la tarjeta de débito a través del cliente relacionado con la cuenta, por ejemplo
-            Card debitCard = cardService.findDebitCardByClientAccount(paymentRequestDTO.getOrderId());
+            // 1. Obtener la tarjeta de débito a través del número de tarjeta enviado en la solicitud
+            String cardNumber = paymentRequestDTO.getCardDetails().getCardNumber();
+            Card debitCard = cardService.findByCardNumber(cardNumber);
 
             if (debitCard == null) {
-                return new ResponseEntity<>("No debit card associated with the client", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("No debit card associated with this card number", HttpStatus.BAD_REQUEST);
             }
 
-            // Obtener la cuenta vinculada a la tarjeta de débito
+            // 2. Verificar si la tarjeta es de débito
+            if (!debitCard.isDebitCard()) {
+                return new ResponseEntity<>("The card is not a debit card", HttpStatus.BAD_REQUEST);
+            }
+
+            // 3. Obtener la cuenta vinculada a la tarjeta de débito
             Account account = debitCard.getAccount();
             if (account == null) {
                 return new ResponseEntity<>("No account associated with this debit card", HttpStatus.BAD_REQUEST);
             }
 
-            // Verificar si la cuenta tiene suficiente saldo
+            // 4. Verificar si la cuenta tiene suficiente saldo
             double orderAmount = paymentRequestDTO.getAmount();
             if (account.getBalance() < orderAmount) {
                 return new ResponseEntity<>("Insufficient balance in the account", HttpStatus.BAD_REQUEST);
             }
 
-            // Descontar el monto de la cuenta
+            // 5. Descontar el monto de la cuenta
             accountService.debitAccount(account, orderAmount);
 
-            // Registrar la transacción en el sistema de homebanking
+            // 6. Registrar la transacción en el sistema de homebanking
             transactionsService.registerTransaction(account, orderAmount, "Payment for order: " + paymentRequestDTO.getOrderId());
 
             return new ResponseEntity<>("Payment successful", HttpStatus.OK);
