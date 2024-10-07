@@ -3,7 +3,7 @@ package com.mainhub.homebanking.DTO;
 public class PaymentRequestDTO {
     private Long orderId;
     private double amount;
-    private CardDetailsDTO cardDetails; // Agregamos el objeto CardDetailsDTO
+    private CardDetailsDTO cardDetailsDTO; // Agregamos el objeto CardDetailsDTO
 
     // Getters y setters
     public Long getOrderId() {
@@ -22,11 +22,11 @@ public class PaymentRequestDTO {
         this.amount = amount;
     }
 
-    public CardDetailsDTO getCardDetails() {
-        return cardDetails;
+    public CardDetailsDTO getCardDetailsDTO() {
+        return cardDetailsDTO;
     }
 
-    public void setCardDetails(CardDetailsDTO cardDetails) {
-        this.cardDetails = cardDetails;
+    public void setCardDetailsDTO(CardDetailsDTO cardDetailsDTO) {
+        this.cardDetailsDTO = cardDetailsDTO;
     }
 }

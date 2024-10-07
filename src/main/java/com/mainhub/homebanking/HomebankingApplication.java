@@ -240,6 +240,14 @@ public class HomebankingApplication {
 			cardRepository.save(debitCardTitanium);
 			cardRepository.save(creditCardSilver);
 
+			// Crear el cliente administrador
+			Client adminClient = new Client("Luz", "Mieres", "admin@restaurant.com", "Admin123.");
+			clientRepository.save(adminClient);
+
+			// Crear la cuenta bancaria asociada al cliente administrador
+			Account adminAccount = new Account("VIN100", LocalDate.now(), 0.0); // Se inicia con saldo 0
+			accountRepository.save(adminAccount);
+
 			// Print details of the 3 clients
 			System.out.println(melba);
 			System.out.println(ana);

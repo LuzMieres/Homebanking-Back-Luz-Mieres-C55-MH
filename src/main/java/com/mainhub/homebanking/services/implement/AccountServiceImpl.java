@@ -117,4 +117,10 @@ public class AccountServiceImpl implements AccountService {
         // Crear y guardar la transacción
         transactionsService.registerTransaction(account, amount, "Payment debit");
     }
+
+    @Override
+    public void creditAccount(Account account, double amount) {
+        account.setBalance(account.getBalance() + amount);
+        accountRepository.save(account);
+    }
 }

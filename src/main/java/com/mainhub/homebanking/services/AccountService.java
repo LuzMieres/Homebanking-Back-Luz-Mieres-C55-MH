@@ -17,4 +17,6 @@ public interface AccountService {
 
     // Método para debitar la cuenta
     void debitAccount(Account account, double amount);
+
+    void creditAccount(Account account, double amount);
 }
